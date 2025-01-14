@@ -33,10 +33,7 @@ verilog_library(
     name = "johnson_counter",
     srcs = [
         "johnson_counter.sv",
-    ],
-    data = [
-        "test.mem",
-    ],
+    ]
 )
 
 verilator_cc_library(
