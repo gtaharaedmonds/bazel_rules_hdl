@@ -1,21 +1,33 @@
 set_param general.maxThreads {{THREADS}}
 open_checkpoint {{CHECKPOINT_IN}}
 
-set WNS [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -setup]]
+# Get the worst negative slack (WNS).
+set TIMING_PATHS [get_timing_paths -max_paths 1 -nworst 1 -setup]
 
-if {![info exists WNS] || $WNS == ""} {
-    puts "WNS does not exist or is not populated, making bitstream anyway"
-    write_bitstream -force {{BITSTREAM}}
-    if {{{WRITE_XSA}}} {
-        write_hw_platform -fixed -include_bit -force -file {{XSA_PATH}}
-    }
-} elseif {$WNS >= 0} {
-    puts "Post Route WNS = $WNS"
+# Get the worst negative slack (WNS).
+if {[llength $TIMING_PATHS] == 0} {
+    puts "No timing paths found, making bitstream anyway"
     write_bitstream -force {{BITSTREAM}}
     if {{{WRITE_XSA}}} {
         write_hw_platform -fixed -include_bit -force -file {{XSA_PATH}}
     }
 } else {
-    puts "Failed to make timing, refusing to make bitstream"
-}
+    # Get the worst negative slack (WNS).
+    set WNS [get_property SLACK [lindex $TIMING_PATHS 0]]
 
+    if {![info exists WNS] || $WNS == ""} {
+        puts "WNS does not exist or is not populated, making bitstream anyway"
+        write_bitstream -force {{BITSTREAM}}
+        if {{{WRITE_XSA}}} {
+            write_hw_platform -fixed -include_bit -force -file {{XSA_PATH}}
+        }
+    } elseif {$WNS >= 0} {
+        puts "Post Route WNS = $WNS"
+        write_bitstream -force {{BITSTREAM}}
+        if {{{WRITE_XSA}}} {
+            write_hw_platform -fixed -include_bit -force -file {{XSA_PATH}}
+        }
+    } else {
+        puts "Failed to make timing, refusing to make bitstream"
+    }
+}
