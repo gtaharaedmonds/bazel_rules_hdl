@@ -128,7 +128,7 @@ verilog_library = rule(
         ),
         "srcs": attr.label_list(
             doc = "Verilog or SystemVerilog sources.",
-            allow_files = [".v", ".sv", ".vhd"],
+            allow_files = [".v", ".sv"],
         ),
     },
 )
